@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+#%%
 # # Library Builder for Mineral Fluorescense Prediction
 # ### Builder app that allows you to select image folder containing training images. Images can be filtered and enhanced in tkinter interface before pixel values are measured and stored. At the end of image file, app allows you to save the library in a folder which will automatically save library plot and mineral list.
 # 
 # #### Select specific folder with images to optain training data from. Images can be manipulated (saturation control with slide bar, deleting specific pixel areas with cursur, and blurring to exclude bad pixels). With deleting pixels, double click for single selection, click and drag for large area. Before adding imiage values to dataset, user can check HSV for the displayed image by selecting 'check'. Image pixel data can be added to library with 'add'. App displayd the progression of library as it is built. 
 
-# In[122]:
-
-
+ #%% 
 import PIL
 import tkinter
 import cv2
@@ -43,13 +41,11 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
 NavigationToolbar2Tk)
 import colorcet as cc
 pwd = os.getcwd()
+#%% 
 
+### Functions
 
-# ## Functions
-
-# In[215]:
-
-
+#%% 
 def select_file(tp):
     global df, hfltr,vfltr, blur, folder, counter, pixel_x, pixel_y, x, y,w,h
     if tp == 'lib':
@@ -318,10 +314,6 @@ def saving(save_folder,df,fig):
     mineral_list.to_csv(save_list,index=False)
     save_root.destroy()
 
-
-# In[216]:
-
-
 def size(img,w,h):
     fixed_height = h
     fixed_width = w
@@ -438,12 +430,9 @@ def read_rgb():
                         'hue': hue, 'saturation': sat, 'value': val})
     
 
-
-# ## Launch app (Tkinter interface)
-
-# In[218]:
-
-
+#%% 
+### Launch app (Tkinter interface)
+#%% 
 root = Tk()
 root.geometry("1450x950")
 root.title('SC Robotics Mineral Library Builder')
@@ -532,25 +521,21 @@ save.grid(row=1, column=4, padx=5, pady=5)
 # kick off the GUI
 
 root.mainloop()
+#%% 
+ 
+### Testing library 
 
-
-# ## Testing library 
-
-# In[219]:
-
-
+#%% 
 data = pd.read_csv('Libraries/Final/data_set.csv')
 data.head()
 
 
-# ### Looking at kNeighbors K values for best prediction
+### Looking at kNeighbors K values for best prediction
 
-# In[220]:
-
-
+#%%
 from sklearn import preprocessing
 dt = data.copy()
-
+#%%
 tag = preprocessing.LabelEncoder()
 tag.fit(dt['Mineral'])
 dt['Mineral'] = tag.transform(dt['Mineral'])
@@ -564,11 +549,7 @@ value_train, value_test, mineral_train, mineral_test = train_test_split(value,
 scaler=StandardScaler()
 value_train_scaled=scaler.fit_transform(value_train)
 value_test_scaled=scaler.fit_transform(value_test)
-
-
-# In[221]:
-
-
+#%%
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 res=[]
@@ -590,10 +571,7 @@ if max(res) < max(sres):
     k = kval[np.argmax(sres)]
     print('scaled')
 
-
-# In[222]:
-
-
+#%%
 plt.figure(figsize=(5, 5))
 plt.plot(kval,res,linewidth=2.5)
 plt.xscale("log")
@@ -601,18 +579,10 @@ plt.xlabel('neighbors')
 plt.ylabel('Accuracmineral')
 plt.show()
 
+#%%
 
-# In[223]:
-
-
-k
-
-
-# ### Looking at prediction confidence by mineral type
-
-# In[224]:
-
-
+### Looking at prediction confidence by mineral type
+#%%
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 from sklearn.metrics import classification_report
@@ -630,17 +600,8 @@ for i in kval:
     labres = pd.concat([labres,labf.drop(['accuracy','macro avg','weighted avg'])])
 labres.reset_index(inplace=True)
 labres = labres.rename(columns = {'index':'mineral'})
-
-
-# In[225]:
-
-
 labres
-
-
-# In[226]:
-
-
+#%%
 import colorcet as cc
 palette = sns.color_palette(cc.glasbey, n_colors=len(labres['mineral'].unique()))
 sns.set_theme(style = "whitegrid", palette=palette)
@@ -652,13 +613,10 @@ for container in g.fig.get_axes()[0].containers:
 g.fig.subplots_adjust(top=0.93)
 g.fig.suptitle('F1 accuracy score of predictions with different k values by mineral type',fontsize=17)
 plt.show()
+#%%
 
-
-# ### Random plots: Exploring library data set
-
-# In[227]:
-
-
+### Random plots: Exploring library data set
+#%%
 fig = plt.figure(figsize=(8,4), dpi=100)
 ax = fig.add_subplot()
 palette = sns.color_palette(cc.glasbey, n_colors=len(data['Mineral'].unique()))
@@ -668,11 +626,7 @@ sns.move_legend(ax, 'upper left', bbox_to_anchor=(0.12,1),ncol = 2,frameon=False
 ax.set_xlim(0,1)
 ax.set_title('Hue of Minerals in Library')
 plt.show()
-
-
-# In[228]:
-
-
+#%%
 df = data.copy()
 palette = sns.color_palette(cc.glasbey, n_colors=len(df['Mineral'].unique()))
 sns.set_theme(style = "ticks", palette=palette)
@@ -719,70 +673,44 @@ if len(test_value) > 3:
             ax[i,j].set_xlabel(x)
             v = v+1
 plt.show()
-
-        
-
-
-# In[229]:
-
-
+#%%
 sns.set_theme(style = "ticks", palette=palette)
 sns.set_context("notebook", font_scale = 0.65)
 g = sns.pairplot(data,hue = "Mineral", vars = ["r","g","b"], size = 5, plot_kws=dict(marker="+", linewidth=1,alpha=0.1)
                  ,corner=True)
 
 
-# In[230]:
-
-
+#%%
 g = sns.pairplot(data,hue = "Mineral", vars = ["hue","saturation","value"], size = 5, plot_kws=dict(marker="+", linewidth=1,alpha=0.1)
                  ,corner=True)
 
 
-# In[ ]:
-
-
+#%%
 g = sns.FacetGrid(data=data, col='Mineral',col_wrap=3, height=5, aspect= 1.5)
 g.map(sns.histplot, 'L', color = 'black', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'A', color = 'magenta', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'B', color = 'blue', fill=False, element="poly", stat="density", bins = 100)
 g.set(xlabel = "Intensity", ylabel = "Count Density")
-
-
-# In[ ]:
-
-
+#%%
 g = sns.FacetGrid(data=data, col='Mineral',col_wrap=3, height=5, aspect= 1.5)
 g.map(sns.histplot, 'short', color = 'red', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'med', color = 'green', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'lon', color = 'blue', fill=False, element="poly", stat="density", bins = 100)
 g.set(xlabel = "Intensity", ylabel = "Count Density")
-
-
-# In[ ]:
-
-
+#%%
 g = sns.FacetGrid(data=data, col='Mineral',col_wrap=3, height=5, aspect= 1.5)
 g.map(sns.histplot, 'hue', color = 'red', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'saturation', color = 'gray', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'value', color = 'black', fill=False, element="poly", stat="density", bins = 100)
-
-
-# In[ ]:
-
-
+#%%
 g = sns.FacetGrid(data=data, col='Mineral',col_wrap=3, height=5, aspect= 1.5)
 g.map(sns.histplot, 'r', color = 'red', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'g', color = 'green', fill=False, element="poly", stat="density", bins = 100)
 g.map(sns.histplot, 'b', color = 'blue', fill=False, element="poly", stat="density", bins = 100)
 g.set(xlabel = "Intensity", ylabel = "Count Density")
 g.set(xlim=(0.005, 1), ylim=(0,10))
-
-
-# In[ ]:
-
-
+#%%
 g = sns.jointplot(data=data, x='hue',y='value',  hue = 'Mineral', s = 4, marker="+",alpha = 0.1)
 sns.move_legend(g.ax_joint, "lower right", bbox_to_anchor=(1.6,0.1), frameon=False)
 plt.show()
-
+#%%
